@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+         xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+    
+    <!-- Identifikátory XRechnung 3.0 kompatibilní s Peppol -->
+    <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>
+    <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+    
+    <!-- BT-1 -->
+    <cbc:ID>FVV-1790/2026</cbc:ID>
+    <!-- BT-2 -->
+    <cbc:IssueDate>2026-06-09</cbc:IssueDate>
+    <!-- BT-9 -->
+    <cbc:DueDate>2026-08-08</cbc:DueDate>
+    <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+    <cbc:BuyerReference>991-TKAW-12</cbc:BuyerReference>
+
+    <!--
+    POZOR!! BG-14 Invoicing period (BT-73, BT-74) uvadet nebudeme
+        BT-73 – Počáteční datum fakturačního období (Invoicing period start date) /Invoice/cac:InvoicePeriod/cbc:StartDate
+        BT-74 – Koncové datum fakturačního období (Invoicing period end date)     /Invoice/cac:InvoicePeriod/cbc:EndDate
+    -->
+
+    <!--
+    POZOR!! BG-20 spolu s BT-95 nemame aplikovano!! 
+        Business Group BG-20 - Document level allowances Data Type Code Cardinality 1..1 (mandatory)  
+        BT-95: /Invoice/cac:AllowanceCharge/cac:TaxCategory/cbc:ID (ChargeIndicator = false)
+        A coded identification of what VAT category applies to the document level allowance. Uses UNTDID 5305 codes (S, Z, E, AE, K, G, O, L, M).  
+    -->
+
+    
+    <!-- OPRAVA 1: Správný jmenný prostor 'cac:' a přesné pořadí podle XSD schématu 
+        POZOR!! Referenci na OP budeme jmenovat v InvoiceLine - pro pripad faktury vice OP
+    -->
+    <!--
+        BT-13 - pouze pokud je fakturovana jedna objednavka
+    <cac:OrderReference>
+        <cbc:ID>4503891720</cbc:ID>
+    </cac:OrderReference>
+    -->
+    
+    <cac:DespatchDocumentReference>
+        <cbc:ID>D30V-1954/2026</cbc:ID>
+    </cac:DespatchDocumentReference>
+
+    <!-- DODAVATEL BG-4  (VY) -->
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cbc:EndpointID schemeID="0135">04638590</cbc:EndpointID>
+            <!-- BG-5 -->
+            <cac:PostalAddress>
+                <!-- BT-35 -->
+                <cbc:StreetName>Třídvorská 1371</cbc:StreetName>
+                <!-- BT-38 -->
+                <cbc:CityName>Kolín V</cbc:CityName>
+                <cbc:PostalZone>28002</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>CZ</cbc:IdentificationCode>
+                </cac:Country>
+                <!-- BT-36 chybi: /Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:AdditionalStreetName optional-  
+                An additional address line in an address that can be used for additional details. 
+                     BT-37 chybi: /Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:AddressLine/cbc:Line optional-
+                An additional address line in an address that can be used for additional details.
+                     BT-40 chybi: /Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:CountrySubentity optional-
+                The subdivision of a country, such as a region, state, province, etc.
+                -->
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <!-- BT-31 (BT-32) -->
+                <cbc:CompanyID>CZ04638590</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <!-- BT-27 -->
+                <cbc:RegistrationName>SPEL Manufacturing s.r.o.</cbc:RegistrationName>
+                <cbc:CompanyLegalForm>Městský soud v Praze, oddíl C, vložka 251268</cbc:CompanyLegalForm>
+            </cac:PartyLegalEntity>
+            <!-- OPRAVA CHYBY BR-DE-2: Povinné kontaktní údaje na vystavovatele (BG-6) -->
+            <cac:Contact>
+                <!-- BT-41: Jméno odpovědné osoby (Z ABŘE: Vystavil) -->
+                <cbc:Name>Anastasiia Khanchevska</cbc:Name>
+                <!-- BT-42: Telefon (Z ABŘE: Telefon) -->
+                <cbc:Telephone>321742061</cbc:Telephone>
+                <!-- BT-43: E-mail (Z ABŘE: E-mail) -->
+                <cbc:ElectronicMail>akhanchevska@spel.cz</cbc:ElectronicMail>
+            </cac:Contact>
+
+
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+
+    <!-- ODBĚRATEL BG-7 (TK Elevator) -->
+    <cac:AccountingCustomerParty>
+        <cac:Party>
+            <cbc:EndpointID schemeID="0204">991-TKAW-12</cbc:EndpointID>
+            <!-- BG-8 -->
+            <cac:PostalAddress>
+                <!-- BT-50 -->
+                <cbc:StreetName>Zeppelinstraße 100</cbc:StreetName>
+                <!-- BT-53 -->
+                <cbc:CityName>Esslingen am Neckar</cbc:CityName>
+                <cbc:PostalZone>73730</cbc:PostalZone>
+                <cac:Country>
+                    <!-- BT-56 -->
+                    <cbc:IdentificationCode>DE</cbc:IdentificationCode>
+                </cac:Country>
+                <!-- BT-52 chybi: /Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:AddressLine/cbc:Line optional-
+                An additional address line in an address that can be used for additional details. 
+                     BT-55 chybi: /Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:CountrySubentity optional-
+                The subdivision of a country, such as a region, state, province, etc.
+                -->
+            </cac:PostalAddress>
+            <!--
+            BT-58 - to by mely byt kontaktni informace kupujiciho - nemame aplikovano priklad struktury viz nize
+                <cac:Contact>
+                    <cbc:Name>Max Mustermann</cbc:Name> 
+                    <cbc:Telephone>+49 123 45678</cbc:Telephone> 
+                    <cbc:ElectronicMail>accounting@customer.de</cbc:ElectronicMail> 
+                </cac:Contact>            
+            -->
+            <cac:PartyTaxScheme>
+                <!-- BT-48 -->
+                <cbc:CompanyID>DE812523476</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <!-- BT-44 -->
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>TK Aufzugswerke GmbH</cbc:RegistrationName>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingCustomerParty>
+
+    <!-- BG-13 -->
+    <cac:Delivery>
+        <!-- BT-72 -->
+        <cbc:ActualDeliveryDate>2026-06-01</cbc:ActualDeliveryDate>
+    </cac:Delivery>
+
+    <!-- BG-16 
+        zde je potreba zjistit, jestli cac:PaymentMandate pouzijeme, cili jestli provadime inkaso (BT-91 ucet kupujiciho a BT-81 SEPA inkaso plus BT-89 refewrence mandatu)
+    -->
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+        <cbc:PaymentID>11211790</cbc:PaymentID>
+        <cac:PayeeFinancialAccount>
+            <!-- BT-84 -->
+            <cbc:ID>CZ9703000000000073973743</cbc:ID>
+            <cbc:Name>ČSOB a.s.</cbc:Name>
+            <cac:FinancialInstitutionBranch>
+                <cbc:ID>CEKOCZPP</cbc:ID>
+            </cac:FinancialInstitutionBranch>
+        </cac:PayeeFinancialAccount>
+    </cac:PaymentMeans>
+
+    <!-- BG-23 / BG-22 REKAPITULACE DPH  -->
+    <cac:TaxTotal>
+        <!-- BT-110 -->
+        <cbc:TaxAmount currencyID="EUR">0.00</cbc:TaxAmount>
+        <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="EUR">4321.44</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="EUR">0.00</cbc:TaxAmount>
+            <!-- BT-X-97, BT-X-96 je jiz definovano v BT-118-0, BT-120 -->
+            <cac:TaxCategory>
+                <!-- BT-118 -->
+                <cbc:ID>AE</cbc:ID>
+                <cbc:Percent>0</cbc:Percent>
+                <!-- BT-121  OPRAVA 2: Kód ReasonCode musí být striktně PŘED textem Reason -->
+                <cbc:TaxExemptionReasonCode>VATEX-EU-AE</cbc:TaxExemptionReasonCode>
+                <!-- BT-120 -->
+                <cbc:TaxExemptionReason>Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge)</cbc:TaxExemptionReason>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:TaxCategory>
+        </cac:TaxSubtotal>
+    </cac:TaxTotal>
+
+    <!-- BG-22 - Document totals -->
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="EUR">4321.44</cbc:LineExtensionAmount>
+        <!-- BT-109 -->
+        <cbc:TaxExclusiveAmount currencyID="EUR">4321.44</cbc:TaxExclusiveAmount>
+        <!-- BT-112 -->
+        <cbc:TaxInclusiveAmount currencyID="EUR">4321.44</cbc:TaxInclusiveAmount>
+        <cbc:AllowanceTotalAmount currencyID="EUR">0.00</cbc:AllowanceTotalAmount>
+        <cbc:ChargeTotalAmount currencyID="EUR">0.00</cbc:ChargeTotalAmount>
+        <!-- BT-113 -->
+        <cbc:PrepaidAmount currencyID="EUR">0.00</cbc:PrepaidAmount>
+        <!-- BT-115 -->
+        <cbc:PayableAmount currencyID="EUR">4321.44</cbc:PayableAmount>
+    </cac:LegalMonetaryTotal>
+
+    <!-- ŘÁDEK FAKTURY -->
+    <cac:InvoiceLine>
+        <!-- BT-126: Číslo řádku faktury (1, 2, 3...) -->    
+        <cbc:ID>1</cbc:ID>
+        <!-- BT-129  Použita opravená jednotka H87 (ks)-->
+        <cbc:InvoicedQuantity unitCode="H87">1</cbc:InvoicedQuantity>
+        <!-- BT-131: Celková cena řádku bez DPH -->
+        <cbc:LineExtensionAmount currencyID="EUR">4321.44</cbc:LineExtensionAmount>
+        
+        <cac:OrderLineReference>
+            <!-- BT-132: Číslo pozice v jejich objednávce (např. první položka = 10 nebo 1. Zjistíte z objednávky od nich) -->
+            <cbc:LineID>00010</cbc:LineID>
+            <cac:OrderReference>
+                <!-- BT-X-21: Číslo samotné objednávky (přeneste z hlavičky) -->
+                <cbc:ID>4503891720</cbc:ID>
+            </cac:OrderReference>
+        </cac:OrderLineReference>
+
+        <!-- BG-31 -->        
+        <cac:Item>
+            <!-- BT-153: Název zboží/služby + sériové číslo -->        
+            <cbc:Name>66 120 00 92 7 6_L ZB (S/N: C50L000416)</cbc:Name>
+
+            <!-- BT-154 zde se teprve rozhodneme, co s tim
+            /Invoice/cac:InvoiceLine/cac:Item/cbc:Description optional-
+            A description for an item. The item description allows for describing the item and its features in more detail than the item name.
+              -->
+
+            <!-- BT-156: Pokud od nich máte interní číslo materiálu (např. 1002345), patří sem. Jinak lze tag vynechat. 
+                POZOR!! spravny tag je /Invoice/cac:InvoiceLine/cac:Item/cac:BuyersItemIdentification/cbc:ID
+            -->
+            <cac:BuyersItemIdentification>
+                <cbc:ID>66120009276_L</cbc:ID>
+            </cac:BuyersItemIdentification>
+
+            <!-- puvodni chybne interpretovana BT-156
+            <cac:SellersItemIdentification>
+                <cbc:ID>66120009276_L</cbc:ID>
+            </cac:SellersItemIdentification>
+            -->
+
+            <cac:ClassifiedTaxCategory>
+                <!-- BT-X-95: Kód daně (AE = Reverse Charge) -->
+                <!-- BT-151 -->
+                <cbc:ID>AE</cbc:ID>
+                <!-- BT-152 -->
+                <cbc:Percent>0</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:ClassifiedTaxCategory>
+        </cac:Item>
+        <!-- BG-29 -->
+        <cac:Price>
+            <!-- BT-146: Jednotková cena bez DPH -->
+            <cbc:PriceAmount currencyID="EUR">4321.44</cbc:PriceAmount>
+            <!-- BT-149 nerealizujeme  
+              /Invoice/cac:InvoiceLine/cac:Price/cbc:BaseQuantity optional-
+              The number of item units to which the price applies. For example, if the price is for a pack of 10, this value is 10. 
+                 BT-150 nerealizujeme
+              /Invoice/cac:InvoiceLine/cac:Price/cbc:BaseQuantity/@unitCode
+              The unit of measure that applies to the item price base quantity. Uses UN/ECE Recommendation 20 codes.   
+            -->
+        </cac:Price>
+
+        <!-- zde TKE doporucuje tag BT-133 
+            /Invoice/cac:InvoiceLine/cbc:AccountingCost
+           A textual value that specifies where to book the relevant data into the buyer accounting system.
+           napriklad:
+           <cbc:AccountingCost>cost centre;PEP;sales order;internal order;not in use;Gl account</cbc:AccountingCost> 
+           cili v nasem pripade musim zjistit spravny retezec
+        -->
+    </cac:InvoiceLine>
+</Invoice>
