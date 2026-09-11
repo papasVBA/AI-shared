@@ -1,0 +1,165 @@
+C:.
++¦¦¦css
++¦¦¦js
++¦¦¦notices
++¦¦¦phpscripts
+-   +¦¦¦public
+-   -   L¦¦¦api
+-   -       L¦¦¦old_archive
+-   +¦¦¦src
+-   -   L¦¦¦LabelCenter
+-   -       +¦¦¦Db
+-   -       L¦¦¦Placeholders
+-   -           +¦¦¦ERR
+-   -           -   L¦¦¦ERR
+-   -           +¦¦¦UCT
+-   -           -   +¦¦¦JO
+-   -           -   L¦¦¦SCC
+-   -           L¦¦¦UNI
+-   -               +¦¦¦DT
+-   -               +¦¦¦JO
+-   -               L¦¦¦SCC
+-   L¦¦¦vendor
+-       +¦¦¦composer
+-       -   L¦¦¦pcre
+-       -       L¦¦¦src
+-       -           L¦¦¦PHPStan
+-       +¦¦¦maennchen
+-       -   L¦¦¦zipstream-php
+-       -       +¦¦¦.github
+-       -       -   +¦¦¦ISSUE_TEMPLATE
+-       -       -   +¦¦¦PULL_REQUEST_TEMPLATE
+-       -       -   L¦¦¦workflows
+-       -       +¦¦¦.phive
+-       -       +¦¦¦.phpdoc
+-       -       -   L¦¦¦template
+-       -       +¦¦¦guides
+-       -       +¦¦¦src
+-       -       -   +¦¦¦Exception
+-       -       -   +¦¦¦Zip64
+-       -       -   L¦¦¦Zs
+-       -       L¦¦¦test
+-       -           +¦¦¦Zip64
+-       -           L¦¦¦Zs
+-       +¦¦¦markbaker
+-       -   +¦¦¦complex
+-       -   -   +¦¦¦.github
+-       -   -   -   L¦¦¦workflows
+-       -   -   +¦¦¦classes
+-       -   -   -   L¦¦¦src
+-       -   -   L¦¦¦examples
+-       -   L¦¦¦matrix
+-       -       +¦¦¦.github
+-       -       -   L¦¦¦workflows
+-       -       +¦¦¦classes
+-       -       -   L¦¦¦src
+-       -       -       +¦¦¦Decomposition
+-       -       -       L¦¦¦Operators
+-       -       L¦¦¦examples
+-       +¦¦¦phpoffice
+-       -   L¦¦¦phpspreadsheet
+-       -       L¦¦¦src
+-       -           L¦¦¦PhpSpreadsheet
+-       -               +¦¦¦Calculation
+-       -               -   +¦¦¦Database
+-       -               -   +¦¦¦DateTimeExcel
+-       -               -   +¦¦¦Engine
+-       -               -   -   L¦¦¦Operands
+-       -               -   +¦¦¦Engineering
+-       -               -   +¦¦¦Financial
+-       -               -   -   +¦¦¦CashFlow
+-       -               -   -   -   +¦¦¦Constant
+-       -               -   -   -   -   L¦¦¦Periodic
+-       -               -   -   -   L¦¦¦Variable
+-       -               -   -   L¦¦¦Securities
+-       -               -   +¦¦¦Information
+-       -               -   +¦¦¦Internal
+-       -               -   +¦¦¦locale
+-       -               -   -   +¦¦¦bg
+-       -               -   -   +¦¦¦cs
+-       -               -   -   +¦¦¦da
+-       -               -   -   +¦¦¦de
+-       -               -   -   +¦¦¦en
+-       -               -   -   -   L¦¦¦uk
+-       -               -   -   +¦¦¦es
+-       -               -   -   +¦¦¦fi
+-       -               -   -   +¦¦¦fr
+-       -               -   -   +¦¦¦hu
+-       -               -   -   +¦¦¦it
+-       -               -   -   +¦¦¦nb
+-       -               -   -   +¦¦¦nl
+-       -               -   -   +¦¦¦pl
+-       -               -   -   +¦¦¦pt
+-       -               -   -   -   L¦¦¦br
+-       -               -   -   +¦¦¦ru
+-       -               -   -   +¦¦¦sv
+-       -               -   -   L¦¦¦tr
+-       -               -   +¦¦¦Logical
+-       -               -   +¦¦¦LookupRef
+-       -               -   +¦¦¦MathTrig
+-       -               -   -   L¦¦¦Trig
+-       -               -   +¦¦¦Statistical
+-       -               -   -   +¦¦¦Averages
+-       -               -   -   L¦¦¦Distributions
+-       -               -   +¦¦¦TextData
+-       -               -   +¦¦¦Token
+-       -               -   L¦¦¦Web
+-       -               +¦¦¦Cell
+-       -               +¦¦¦Chart
+-       -               -   L¦¦¦Renderer
+-       -               +¦¦¦Collection
+-       -               -   L¦¦¦Memory
+-       -               +¦¦¦Document
+-       -               +¦¦¦Helper
+-       -               +¦¦¦Reader
+-       -               -   +¦¦¦Csv
+-       -               -   +¦¦¦Gnumeric
+-       -               -   +¦¦¦Ods
+-       -               -   +¦¦¦Security
+-       -               -   +¦¦¦Xls
+-       -               -   -   +¦¦¦Color
+-       -               -   -   L¦¦¦Style
+-       -               -   +¦¦¦Xlsx
+-       -               -   L¦¦¦Xml
+-       -               -       L¦¦¦Style
+-       -               +¦¦¦RichText
+-       -               +¦¦¦Shared
+-       -               -   +¦¦¦Escher
+-       -               -   -   +¦¦¦DgContainer
+-       -               -   -   -   L¦¦¦SpgrContainer
+-       -               -   -   L¦¦¦DggContainer
+-       -               -   -       L¦¦¦BstoreContainer
+-       -               -   -           L¦¦¦BSE
+-       -               -   +¦¦¦OLE
+-       -               -   -   L¦¦¦PPS
+-       -               -   L¦¦¦Trend
+-       -               +¦¦¦Style
+-       -               -   +¦¦¦ConditionalFormatting
+-       -               -   -   L¦¦¦Wizard
+-       -               -   L¦¦¦NumberFormat
+-       -               -       L¦¦¦Wizard
+-       -               +¦¦¦Worksheet
+-       -               -   +¦¦¦AutoFilter
+-       -               -   -   L¦¦¦Column
+-       -               -   +¦¦¦Drawing
+-       -               -   L¦¦¦Table
+-       -               L¦¦¦Writer
+-       -                   +¦¦¦Ods
+-       -                   -   L¦¦¦Cell
+-       -                   +¦¦¦Pdf
+-       -                   +¦¦¦Xls
+-       -                   -   L¦¦¦Style
+-       -                   L¦¦¦Xlsx
+-       L¦¦¦psr
+-           +¦¦¦http-client
+-           -   L¦¦¦src
+-           +¦¦¦http-factory
+-           -   L¦¦¦src
+-           +¦¦¦http-message
+-           -   +¦¦¦docs
+-           -   L¦¦¦src
+-           L¦¦¦simple-cache
+-               L¦¦¦src
++¦¦¦pics
++¦¦¦settings
+L¦¦¦temps
