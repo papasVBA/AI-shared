@@ -1,0 +1,178 @@
+[
+    {
+        "Name": "stext1",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 1 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext2",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 2 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext3",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 3 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext4",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 4 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext5",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 5 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext6",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 6 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext7",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 7 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext8",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 8 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },
+    {
+        "Name": "stext9",
+        "Editable": true,
+        "Static": true,
+        "DefaultValue": "",
+        "Description": "Statický text 9 (vždy stejný na všech štítcích, například '+MA2.B_HM2')",
+        "Type": "text"
+    },                        
+    {
+        "Name": "dtext1",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 1 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext2",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 2 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext3",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 3 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext4",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 4 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext5",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 5 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext6",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 6 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext7",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 7 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext8",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 8 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext9",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 9 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext10",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 10 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext11",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 11 (nutno připojit funkci)",
+        "Type": "text"
+    },
+    {
+        "Name": "dtext12",
+        "Editable": true,
+        "Static": false,
+        "DefaultValue": "",
+        "Description": "Dynamický text 12 (nutno připojit funkci)",
+        "Type": "text"
+    },                            
+    {
+        "Name": "spic1",
+        "Editable": false,
+        "Static": true,
+        "DefaultValue": "{LOGO.80.80}",
+        "Description": "Logo naší firmy 80x80 px",
+        "Type": "image"
+    }         
+]

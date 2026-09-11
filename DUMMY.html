@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Label template</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    font-family: Arial, sans-serif;
+  }
+
+  #label {
+    width: 315px;
+    height: 231px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #bfbfbf;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 16px 12px;
+    gap: 6px;
+  }
+
+  #dtext1,
+  #dtext2,
+  #dtext3,
+  #stext1,
+  #dtext4 {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div id="label">
+    <div id="dtext1">{UCT.SCC.P1}</div>
+    <div id="dtext2">{UCT.SCC.P2}</div>
+    <div id="dtext3">{UCT.SCC.REV}</div>
+    <div id="stext1">+MA2.B_HM2</div>
+    <div id="dtext4">{UCT.JO.VENDOR}-{UNI.DT.YYcw}</div>
+  </div>
+</body>
+</html>

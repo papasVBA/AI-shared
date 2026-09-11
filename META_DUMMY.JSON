@@ -1,0 +1,31 @@
+{
+    "Fields": [
+        {
+            "Content": "",
+            "Editable": true,
+            "PlaceHolder": "stext1"
+        },
+        {
+            "Content": "{UCT.SCC.P1}",
+            "Editable": false,
+            "PlaceHolder": "dtext1"
+        },
+        {
+            "Content": "{UCT.SCC.P2}",
+            "Editable": false,
+            "PlaceHolder": "dtext2"
+        },
+        {
+            "Content": "{UCT.SCC.REV}",
+            "Editable": false,
+            "PlaceHolder": "dtext3"
+        },
+        {
+            "Content": "{UCT.JO.VENDOR}-{UNI.DT.YYcw}",
+            "Editable": false,
+            "PlaceHolder": "dtext4"
+        }
+    ],
+    "Picture": "DUMMY.png",
+    "Template": "DUMMY.html"
+}

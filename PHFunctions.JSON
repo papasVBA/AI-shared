@@ -1,0 +1,47 @@
+[
+    {
+        "Name": "UCT.SCC.P1",
+        "Function": "{UCT.SCC.P1}",
+        "Description": "První část kódu karty před první pomlčkou včetně, například '853-' (celý kód karty 853-B59251-103 A) pro UCT"        
+    },
+    {
+        "Name": "UCT.SCC.P2",
+        "Function": "{UCT.SCC.P2}",
+        "Description": "Druhá část kódu karty za první pomlčkou a před první mezerou, například 'B59251-103' (celý kód karty 853-B59251-103 A) pro UCT"        
+    },
+    {
+        "Name": "UCT.SCC.REV",
+        "Function": "{UCT.SCC.REV}",
+        "Description": "Poslední část kódu karty za první mezerou doplněná zprava řetězcem REV., například 'REV.A' (celý kód karty 853-B59251-103 A) pro UCT"        
+    },
+    {
+        "Name": "UCT.VENDOR+CW",
+        "Function": "{UCT.JO.VENDOR}-{UNI.DT.YYcw}",
+        "Description": "Záčíslí obchodního případu a rok/týden ve formátu YYcw, například '1600006-2612' pro UCT"        
+    },
+    {
+        "Name": "UCT.VENDOR",
+        "Function": "{UCT.JO.VENDOR}",
+        "Description": "Záčíslí obchodního případu, například '1600006' pro UCT"        
+    },    
+    {
+        "Name": "UCT.SCC + UCT.REV",
+        "Function": "{UNI.SCC.WO} {UCT.SCC.REV}",
+        "Description": "Kód karty ABRA bez revize + revize zprava doplněná o řetězec 'REV.', například '853-B59251-103 REV.A' pro UCT"        
+    },
+    {
+        "Name": "UCT.cwYY",
+        "Function": "{UNI.DT.cwYY}",
+        "Description": "Týden a rok ve formátu cwYY, například '1226' pro UCT"        
+    },
+    {
+        "Name": "UCT.JobOrder",
+        "Function": "{UNI.JO.DN}",
+        "Description": "Dokladové číslo výrobního příkazu"
+    },
+    {
+        "Name": "myFirmLOGO 80x80",
+        "Function": "{LOGO.80.80}",
+        "Description": "Logo naší firmy 80x80 px"        
+    }
+]
