@@ -1,0 +1,128 @@
+Option Explicit
+
+' ============================================================================
+' modTEST
+' modul pro testovani pairing file FILENAME/Content API
+'
+' ============================================================================
+
+
+Public Sub T_ContentBuilders()
+'rutina pro testovani generovani obsahu parovaciho souboru
+Dim fileName As String  ' jmeno souboru generovaneho z worker ID
+Dim userName As String  ' jmeno uzivatele, pod kterym je parovano, prvni cast fileContent
+Dim userID As String    ' ID uzivatele v podstate k nicem nepotrebujeme, koduje se userName!
+Dim userPass As String  ' heslo uzivatele je stredni cast fileContent
+Dim workerID As String  ' workerID = barcodeContent
+Dim fileContent As String ' kompletni obsah souboru
+
+
+Dim block As String     'testovaci promenna tretiho bloku separatne
+' obsluzne vars pro generovani pairing files
+Dim targetFolder As String ' pro testovani generovani souboru
+Dim fso As Object
+Dim targetFile As Object
+Dim fullPath As String
+
+' promenne pro validacni smycku
+Dim opRow As Long   ' opRow vstup = opRow vystup
+Dim wsIn As Worksheet
+Dim wsOut As Worksheet
+Dim result As Boolean
+
+
+
+    ' nejdrive konstantni testy
+    Debug.Print BuildPasswordBlockProd("Aaaaa")
+    Debug.Print BuildPasswordBlockProd("Testik1")
+    
+    Debug.Print BuildUserBlockProd("PLMT-RU")
+    Debug.Print BuildUserBlockProd("Supervisor")
+    
+    Debug.Print "-----------------------------------------------------------------------------"
+    
+    ' ted  oddelene treti blok
+    fileName = _
+        "0X0I0N0H0H0H0H0H0I0H0I2S2D2I2C2D2C2D2C2D2C2D0--0I0N010I0H0I66060"
+
+    block = BuildWorkerBlockProd(fileName)
+
+    Debug.Print block
+    Debug.Print "Length: " & Len(block)
+    
+    Debug.Print "-----------------------------------------------------------------------------"
+    
+    ' ted test s filename builderem - vystupy pouzijeme pro generovani fyzickeho souboru a zabalime do smycky
+    Set wsIn = ThisWorkbook.Sheets("TESTDATA")
+    Set wsOut = ThisWorkbook.Sheets("RESULTDATA")
+    opRow = 2
+    
+    While wsIn.Cells(opRow, 1) <> ""
+    
+        workerID = CStr(wsIn.Cells(opRow, 1)) '"1600000101"
+        userName = CStr(wsIn.Cells(opRow, 3)) '"PLMT-OV"
+        userPass = CStr(wsIn.Cells(opRow, 4)) '"Testik1"
+        
+        fileName = BuildPLMFilename(workerID)
+        
+        fileContent = BuildUserBlockProd(userName) & BuildPasswordBlockProd(userPass) & BuildWorkerBlockProd(fileName)
+        
+        'Debug.Print fileName
+        'Debug.Print fileContent
+        'Debug.Print "-----------------------------------------------------------------------------"
+        
+        If CStr(wsIn.Cells(opRow, 5)) = fileName And CStr(wsIn.Cells(opRow, 6)) = fileContent Then
+            result = True
+        End If
+        
+        'vypis do listu RESULTDATA
+        
+        wsOut.Cells(opRow, 1) = result
+        wsOut.Cells(opRow, 2) = workerID
+        wsOut.Cells(opRow, 3) = CStr(wsIn.Cells(opRow, 2))
+        wsOut.Cells(opRow, 4) = userName
+        wsOut.Cells(opRow, 5) = userPass
+        wsOut.Cells(opRow, 6) = fileName
+        wsOut.Cells(opRow, 7) = fileContent
+        
+        
+        
+        
+            'a nakonec vytvoreni fyzickeho souboru pro ostry test terminalem
+            targetFolder = "PFTEST"
+            fullPath = ActiveWorkbook.Path & "\" & targetFolder & "\" & fileName
+            
+            Set fso = CreateObject("Scripting.FileSystemObject")
+            Set targetFile = fso.CreateTextFile(fullPath, True, False)
+            
+            targetFile.write fileContent
+            
+            targetFile.Close
+            Set targetFile = Nothing
+            Set fso = Nothing
+    
+    
+    
+        result = False
+        opRow = opRow + 1
+    Wend
+
+
+End Sub 'T_ContentBuilders
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
