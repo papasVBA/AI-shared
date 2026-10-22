@@ -338,10 +338,6 @@
             });
     }
 
-
-
-
-
     //rizeni stavu mezi komponentami
     const AppState = {
         selectedBusTransaction: { id: null, code: null },
@@ -359,24 +355,6 @@
             busTransactionChanged: [] // DOPLNĚNO
         },
         //pro tab2
-        //stara verze - chybne vycitani z cache
-        /*
-        setTemplateForEdit(id) {
-            this.selectedTemplateId = id;
-            // Najdeme šablonu v cache a vytáhneme její meta_json pro Meta Grid
-            const template = this.templatesCache.find(t => t.id == id);
-            const metaData = (template && template.metajson && template.metajson.Fields) ? template.metajson.Fields : [];
-            
-            // Předáme data do Meta Gridu (Detail v Tabu 2)
-            const metaGrid = $("#gridTemplateMeta").dxDataGrid("instance");
-            if (metaGrid) {
-                metaGrid.option("dataSource", metaData);
-            }
-            
-            console.log("AppState: Šablona k editaci nastavena:", id);
-        },
-        */
-
         // nova verze - vylepsena prace z dotazem bez cache
         setTemplateForEdit(id) {
 
@@ -506,38 +484,6 @@
             console.log("AppState: Obchodní případ nastaven:", this.selectedBusTransaction);
             this.notify('busTransactionChanged', this.selectedBusTransaction);            
         },
-        // stara verze setlabel - semanticka chyba v nacitani z cache 
-        /*
-        setLabel(id, templateId, storecard_id = null) {
-            // Zajistíme, že ID labelu je prostá hodnota, ne pole ['18']
-            const cleanId = Array.isArray(id) ? id[0] : id;
-            this.selectedLabel = { 
-                id: cleanId || null, 
-                templateId: templateId || null,
-                storecard_id: storecard_id || null 
-            };
-
-            //pro gridy
-            const template = this.templatesCache.find(t => t.id == templateId);
-            // OPRAVA: Mapujeme na vnitřní pole Fields, které je v metajson
-            if (template && template.metajson && template.metajson.Fields) {
-                this.currentTemplateMeta = template.metajson.Fields;
-            } else {
-                this.currentTemplateMeta = [];
-            }
-
-            //pro preview
-            // Najdeme celou šablonu v cache
-            this.currentTemplateFull = this.templatesCache.find(t => t.id == templateId);
-            // Metadata polí (pro zámky editace)
-            this.currentTemplateMeta = (this.currentTemplateFull && this.currentTemplateFull.metajson) 
-                ? this.currentTemplateFull.metajson.Fields : [];
-
-            console.log("AppState: Vybrán Label", cleanId, "Metadata polí:", this.currentTemplateMeta);
-            this.notify('labelChanged', cleanId);
-        },
-        */
-
         //nova verze setlabel pro nacitani template by ID
         setLabel(id, templateId, storecard_id = null) {
 
@@ -1089,9 +1035,6 @@
     }
 
 
-
-
-
     function initDxTAB3() {
         $("#gridPrinters").dxDataGrid({
             dataSource: createDataSource("printers"),
@@ -1457,37 +1400,6 @@ $("#gridTemplates").dxDataGrid({
     // ------------------------------------------------------
     // INSERT nové šablony
     // ------------------------------------------------------
-    // stara verze
-    /*
-    onRowInserted: function(e) {
-
-        const templateId =
-            e.key ||
-            e.data.id;
-
-        if (!templateId) {
-            console.error(
-                "Nová šablona nemá ID."
-            );
-            return;
-        }
-
-        const picture =
-            e.data.Picture ||
-            "DUMMY.png";
-
-        const htmlTemplate =
-            e.data.Template ||
-            "DUMMY.html";
-
-        saveNewTemplateMeta(
-            templateId,
-            picture,
-            htmlTemplate
-        );
-    },
-    */
-
     // nova verze onRowInserted - vylepsene rizeni 
     onRowInserted: function(e) {
 
@@ -1990,84 +1902,6 @@ $("#gridTemplates").dxDataGrid({
             $popover.dxPopover("instance").show();
         }
 
-    // pomocna funkce pro ukladani assetu pics a htmltemplates - jen pro debug
-    /*
-    function saveTemplateAssets(templateId, picture, htmlTemplate) {
-
-        if (!templateId) {
-            return;
-        }
-
-        const template = AppState.templatesCache.find(
-            t => t.id == templateId
-        );
-
-        if (!template) {
-            return;
-        }
-
-        const currentMeta =
-            template.metajson || {};
-
-        const metaJson = {
-            Fields: currentMeta.Fields || [],
-            Picture: picture || "DUMMY.png",
-            Template: htmlTemplate || "DUMMY.html"
-        };
-
-        console.log(
-            "Ukládám assety šablony:",
-            metaJson
-        );
-
-        $.ajax({
-            url: APIURL + "templates-record.php",
-            method: "POST",
-            contentType: "application/json",
-
-            data: JSON.stringify({
-                grid: "templates",
-                operation: "update",
-
-                data: [{
-                    id: templateId,
-                    meta_json: metaJson
-                }]
-            })
-
-        }).done(function() {
-
-            template.metajson = metaJson;
-
-            // Aktualizujeme případně právě používanou šablonu
-            if (
-                AppState.currentTemplateFull &&
-                AppState.currentTemplateFull.id == templateId
-            ) {
-                AppState.currentTemplateFull.metajson = metaJson;
-            }
-
-            console.log(
-                "Assety šablony uloženy."
-            );
-
-        }).fail(function(xhr) {
-
-            console.error(
-                "Uložení assetů selhalo:",
-                xhr
-            );
-
-            DevExpress.ui.notify(
-                "Nepodařilo se uložit obrázek / HTML šablonu.",
-                "error",
-                3000
-            );
-        });
-    }
-    */
-
-
     /**
      * Uloží aktuální stav META_JSON zpět do PostgreSQL.
      *
@@ -2212,67 +2046,6 @@ $("#gridTemplates").dxDataGrid({
     }    
 
     // fce pro ulozeni "NEW"
-    // stara verze - nerizeny retezec requestu
-    /*
-    function saveNewTemplateMeta(
-        templateId,
-        picture,
-        htmlTemplate
-    ) {
-
-        const metaJson = {
-            Fields: [],
-            Picture: picture || "DUMMY.png",
-            Template: htmlTemplate || "DUMMY.html"
-        };
-
-        console.log(
-            "Inicializuji META_JSON nové šablony:",
-            metaJson
-        );
-
-        $.ajax({
-            url: APIURL + "templates-record.php",
-            method: "POST",
-            contentType: "application/json",
-
-            data: JSON.stringify({
-                grid: "templates",
-                operation: "update",
-
-                data: [{
-                    id: templateId,
-                    meta_json: metaJson
-                }]
-            })
-
-        }).done(function() {
-
-            console.log(
-                "META_JSON nové šablony vytvořen."
-            );
-
-            // Obnovíme cache/grid
-            $("#gridTemplates")
-                .dxDataGrid("instance")
-                .refresh();
-
-        }).fail(function(xhr) {
-
-            console.error(
-                "Inicializace META_JSON selhala:",
-                xhr
-            );
-
-            DevExpress.ui.notify(
-                "Nepodařilo se vytvořit META_JSON šablony.",
-                "error",
-                3000
-            );
-        });
-    }
-    */
-
     // nova verze function saveNewTemplateMeta - vylepsene rizeni retezce requestu
     function saveNewTemplateMeta(
         templateId,
@@ -2333,121 +2106,88 @@ $("#gridTemplates").dxDataGrid({
     }
 
 
-
-
-    // stara FUNKCNI verze - zakomentovano pro debug nove funkce
-    /*
+    // NOVA funkce - test!!! (approved)
     function createGridLookupEditor(container, cellInfo, gridName, filterType) {
+
         return $("<div>").dxDropDownBox({
+
             value: cellInfo.value,
             valueExpr: "id",
             displayExpr: "code",
-            placeholder: "Vyhledat...",
-            dataSource: createDataSource(gridName, { filterType: filterType }),
+
+            placeholder: "Vyberte...",
+
+            dataSource: createDataSource(
+                gridName,
+                { filterType: filterType }
+            ),
+
             contentTemplate: function(e) {
+
                 const $grid = $("<div>").dxDataGrid({
+
                     dataSource: e.component.getDataSource(),
+
                     remoteOperations: true,
-                    columns: ["code", "name"],
-                    selection: { mode: "single" },
-                    selectedRowKeys: [cellInfo.value],
-                    height: 250,
+
+                    columns: [
+                        {
+                            dataField: "code",
+                            caption: "Kód"
+                        },
+                        {
+                            dataField: "name",
+                            caption: "Název"
+                        }
+                    ],
+
+                    // ------------------------------------------
+                    // HLEDÁNÍ
+                    // ------------------------------------------
+
+                    searchPanel: {
+                        visible: true,
+                        width: "100%",
+                        placeholder: "Hledat..."
+                    },
+
+                    selection: {
+                        mode: "single"
+                    },
+
+                    selectedRowKeys: [
+                        cellInfo.value
+                    ],
+
+                    height: 300,
+
                     onSelectionChanged: function(selection) {
-                        const keys = selection.selectedRowKeys;
-                        e.component.option("value", keys.length ? keys[0] : null);
-                        cellInfo.setValue(keys.length ? keys[0] : null);
-                        if (keys.length) e.component.close();
+
+                        const keys =
+                            selection.selectedRowKeys;
+
+                        const value =
+                            keys.length
+                                ? keys[0]
+                                : null;
+
+                        e.component.option(
+                            "value",
+                            value
+                        );
+
+                        cellInfo.setValue(value);
+
+                        if (keys.length) {
+                            e.component.close();
+                        }
                     }
                 });
+
                 return $grid;
             }
         });
-    }
-    */
-
-
-// NOVA funkce - test!!!
-function createGridLookupEditor(container, cellInfo, gridName, filterType) {
-
-    return $("<div>").dxDropDownBox({
-
-        value: cellInfo.value,
-        valueExpr: "id",
-        displayExpr: "code",
-
-        placeholder: "Vyberte...",
-
-        dataSource: createDataSource(
-            gridName,
-            { filterType: filterType }
-        ),
-
-        contentTemplate: function(e) {
-
-            const $grid = $("<div>").dxDataGrid({
-
-                dataSource: e.component.getDataSource(),
-
-                remoteOperations: true,
-
-                columns: [
-                    {
-                        dataField: "code",
-                        caption: "Kód"
-                    },
-                    {
-                        dataField: "name",
-                        caption: "Název"
-                    }
-                ],
-
-                // ------------------------------------------
-                // HLEDÁNÍ
-                // ------------------------------------------
-
-                searchPanel: {
-                    visible: true,
-                    width: "100%",
-                    placeholder: "Hledat..."
-                },
-
-                selection: {
-                    mode: "single"
-                },
-
-                selectedRowKeys: [
-                    cellInfo.value
-                ],
-
-                height: 300,
-
-                onSelectionChanged: function(selection) {
-
-                    const keys =
-                        selection.selectedRowKeys;
-
-                    const value =
-                        keys.length
-                            ? keys[0]
-                            : null;
-
-                    e.component.option(
-                        "value",
-                        value
-                    );
-
-                    cellInfo.setValue(value);
-
-                    if (keys.length) {
-                        e.component.close();
-                    }
-                }
-            });
-
-            return $grid;
-        }
-    });
-}    
+    }    
     }
 
 
@@ -2648,7 +2388,7 @@ function createGridLookupEditor(container, cellInfo, gridName, filterType) {
                     }
 
                 },
-                { dataField: "qpp", caption: "Ks", dataType: "number" },
+                { dataField: "qpp", caption: "Ks", dataType: "number", width: 50 },
                 { dataField: "notice", caption: "Poznámka" }
             ],
             onSelectionChanged: function(e) {
@@ -2719,68 +2459,7 @@ function createGridLookupEditor(container, cellInfo, gridName, filterType) {
                 }
             },
             
-            // stara verze onRowInserted - nezobrazuje po insertu radek
-            /*
-            onRowInserted: function(e) {
-                // 1. Ošetření ID labelu (přichází jako pole ['18'], potřebujeme jen "18")
-                const newId = Array.isArray(e.key) ? e.key[0] : e.key;
-                const templateId = e.data.tempid;
-                // take si uchovame tzv dx id a instanci
-                const rowNewID = e.key;
-                const labelsGrid = e.component;
-
-                console.log("Zpracovávám label ID:", newId, "pro šablonu:", templateId);
-
-                const template = AppState.templatesCache.find(t => t.id == templateId);
-
-                // 2. Kontrola, zda máme šablonu a zda má Fields
-                if (template && template.metajson && template.metajson.Fields) {
-                    
-                    // POZOR: V logu vidím, že pole jsou v template.metajson.Fields
-                    const fieldsToInsert = template.metajson.Fields.map(f => ({
-                        labelid: newId,
-                        // Mapování na velká písmena dle vašeho logu:
-                        name: f.PlaceHolder, 
-                        content: f.Content || "",
-                        notice: "Auto-generated"
-                    }));
-
-                    console.log("Odesílám pole k uložení do DB:", fieldsToInsert);
-
-                    $.ajax({
-                        url: APIURL + "fields-record.php",
-                        method: "POST",
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({ 
-                            grid: "fields", 
-                            operation: "insert", 
-                            data: fieldsToInsert 
-                        })
-                    }).done(function(res) {
-                        console.log("Fields úspěšně uloženy:", res);
-                        // PO ÚSPĚCHU (v .done bloku):
-                        console.log(newId);
-                        labelsGrid.selectRows([newId], false); // Vybere nový řádek
-                        labelsGrid.navigateToRow(newId);       // Odroluje na něj, pokud by byl mimo obrazovku
-                        
-                        // 3. Nastavení stavu a refresh detailu
-                        AppState.setLabel(newId, templateId, e.data.scid);
-                        const gridFields = $("#gridFields").dxDataGrid("instance");
-                        if (gridFields) {
-                            gridFields.refresh();
-                        } 
-                        
-                        DevExpress.ui.notify("Štítek a pole připravena.", "success", 2000);
-                    }).fail(function(xhr) {
-                        console.error("Selhalo uložení polí:", xhr.responseText);
-                    });
-                } else {
-                    console.warn("Šablona nemá žádná metadata k vygenerování polí.", template);
-                }
-            },
-            */
-            //meziverze onRowInserted bez sortingu
-            /*
+            //nova verze onRowInserted se sortingem
             onRowInserted: function(e) {
 
                 // 1. Ošetření ID labelu
@@ -2835,26 +2514,105 @@ function createGridLookupEditor(container, cellInfo, gridName, filterType) {
                             res
                         );
 
-                        // Nejdříve načteme grid znovu z DB.
-                        labelsGrid.refresh()
+                        // -------------------------------------------------
+                        // 3. Zjistíme aktuální filtr gridu
+                        // -------------------------------------------------
+                        const currentFilter =
+                            labelsGrid.getCombinedFilter(true);
 
-                            // Teprve potom najdeme nový řádek.
-                            .then(function() {
-                                return labelsGrid.navigateToRow(newId);
-                            })
+                        // -------------------------------------------------
+                        // 4. Zjistíme aktuální řazení gridu
+                        // -------------------------------------------------
+                        const currentSort = [];
 
-                            // A až když je na správné stránce,
-                            // označíme jej.
-                            .then(function() {
-                                return labelsGrid.selectRows(
-                                    [newId],
-                                    false
+                        labelsGrid
+                            .getVisibleColumns()
+                            .filter(col => col.sortOrder)
+                            .sort((a, b) =>
+                                (a.sortIndex ?? 0) -
+                                (b.sortIndex ?? 0)
+                            )
+                            .forEach(function(col) {
+
+                                // U sloupců Šablona/Karta máme
+                                // calculateDisplayValue jako string:
+                                // tempname / sccode.
+                                //stara verze s chybnym sortem
+                                /*
+                                const selector =
+                                    typeof col.calculateDisplayValue === "string"
+                                        ? col.calculateDisplayValue
+                                        : col.dataField;
+                                */
+
+                                // nova verze s explicitnim sortem
+                                let selector = col.dataField;
+                                // Sloupce zobrazované přes jiné pole musí používat
+                                // stejný selector jako remote sorting gridu.
+                                if (col.dataField === "tempid") {
+                                    selector = "tempname";
+                                }
+                                if (col.dataField === "scid") {
+                                    selector = "sccode";
+                                }
+
+
+
+
+                                if (selector) {
+                                    currentSort.push({
+                                        selector: selector,
+                                        desc: col.sortOrder === "desc"
+                                    });
+                                }
+                            });
+
+                        // -------------------------------------------------
+                        // 5. Parametry pro zaměřovací dotaz
+                        // -------------------------------------------------
+                        const locateParams = {
+                            grid: "labels",
+                            locateId: newId
+                        };
+
+                        if (currentFilter) {
+                            locateParams.filter =
+                                JSON.stringify(currentFilter);
+                        }
+
+                        if (currentSort.length > 0) {
+                            locateParams.sort =
+                                JSON.stringify(currentSort);
+                        }
+
+                        console.log(
+                            "LOCATE label:",
+                            newId,
+                            locateParams
+                        );
+
+                        // -------------------------------------------------
+                        // 6. Server zjistí skutečnou pozici nového labelu
+                        // -------------------------------------------------
+                        $.getJSON(
+                            APIURL + "datagrid.php",
+                            locateParams
+                        )
+
+                        .done(function(location) {
+
+                            console.log(
+                                "LOCATE result:",
+                                location
+                            );
+
+                            // Pokud nový label není v aktuálně
+                            // filtrovaném datasetu, není kam přecházet.
+                            if (location.rowIndex === null) {
+
+                                console.warn(
+                                    "Nový label není v aktuálně filtrovaném datasetu."
                                 );
-                            })
-
-                            // Nakonec nastavíme stav aplikace
-                            // a obnovíme Fields.
-                            .then(function() {
 
                                 AppState.setLabel(
                                     newId,
@@ -2871,11 +2629,92 @@ function createGridLookupEditor(container, cellInfo, gridName, filterType) {
                                 }
 
                                 DevExpress.ui.notify(
-                                    "Štítek a pole připravena.",
-                                    "success",
-                                    2000
+                                    "Štítek a pole připravena, ale štítek neodpovídá aktuálnímu filtru.",
+                                    "warning",
+                                    3000
                                 );
-                            });
+
+                                return;
+                            }
+
+                            // -------------------------------------------------
+                            // 7. Z rowIndex spočítáme stránku
+                            // -------------------------------------------------
+                            const pageSize =
+                                labelsGrid.pageSize();
+
+                            const targetPage =
+                                Math.floor(
+                                    location.rowIndex / pageSize
+                                );
+
+                            console.log(
+                                "Label:",
+                                newId,
+                                "rowIndex:",
+                                location.rowIndex,
+                                "pageIndex:",
+                                targetPage
+                            );
+
+                            // -------------------------------------------------
+                            // 8. Přepneme grid na správnou stránku
+                            // -------------------------------------------------
+                            labelsGrid.pageIndex(targetPage);
+
+                            // Načteme stránku z DB.
+                            labelsGrid.refresh()
+
+                                .done(function() {
+
+                                    // -------------------------------------------------
+                                    // 9. Nový label je nyní na aktuální stránce
+                                    // -------------------------------------------------
+                                    labelsGrid.selectRows(
+                                        [newId],
+                                        false
+                                    );
+
+                                    // -------------------------------------------------
+                                    // 10. Nastavíme AppState a obnovíme Fields
+                                    // -------------------------------------------------
+                                    AppState.setLabel(
+                                        newId,
+                                        templateId,
+                                        e.data.scid
+                                    );
+
+                                    const gridFields =
+                                        $("#gridFields")
+                                            .dxDataGrid("instance");
+
+                                    if (gridFields) {
+                                        gridFields.refresh();
+                                    }
+
+                                    DevExpress.ui.notify(
+                                        "Štítek a pole připravena.",
+                                        "success",
+                                        2000
+                                    );
+                                })
+
+                                .fail(function(error) {
+
+                                    console.error(
+                                        "Refresh gridu po LOCATE selhal:",
+                                        error
+                                    );
+                                });
+                        })
+
+                        .fail(function(xhr) {
+
+                            console.error(
+                                "LOCATE label selhal:",
+                                xhr.responseText
+                            );
+                        });
 
                     }).fail(function(xhr) {
 
@@ -2892,282 +2731,7 @@ function createGridLookupEditor(container, cellInfo, gridName, filterType) {
                         template
                     );
                 }
-            },
-            */
-
-            //nova verze onRowInserted se sortingem
-onRowInserted: function(e) {
-
-    // 1. Ošetření ID labelu
-    const newId = Array.isArray(e.key) ? e.key[0] : e.key;
-    const templateId = e.data.tempid;
-    const labelsGrid = e.component;
-
-    console.log(
-        "Zpracovávám label ID:",
-        newId,
-        "pro šablonu:",
-        templateId
-    );
-
-    const template =
-        AppState.templatesCache.find(t => t.id == templateId);
-
-    // 2. Kontrola, zda máme šablonu a zda má Fields
-    if (
-        template &&
-        template.metajson &&
-        template.metajson.Fields
-    ) {
-
-        const fieldsToInsert =
-            template.metajson.Fields.map(f => ({
-                labelid: newId,
-                name: f.PlaceHolder,
-                content: f.Content || "",
-                notice: "Auto-generated"
-            }));
-
-        console.log(
-            "Odesílám pole k uložení do DB:",
-            fieldsToInsert
-        );
-
-        $.ajax({
-            url: APIURL + "fields-record.php",
-            method: "POST",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                grid: "fields",
-                operation: "insert",
-                data: fieldsToInsert
-            })
-
-        }).done(function(res) {
-
-            console.log(
-                "Fields úspěšně uloženy:",
-                res
-            );
-
-            // -------------------------------------------------
-            // 3. Zjistíme aktuální filtr gridu
-            // -------------------------------------------------
-            const currentFilter =
-                labelsGrid.getCombinedFilter(true);
-
-            // -------------------------------------------------
-            // 4. Zjistíme aktuální řazení gridu
-            // -------------------------------------------------
-            const currentSort = [];
-
-            labelsGrid
-                .getVisibleColumns()
-                .filter(col => col.sortOrder)
-                .sort((a, b) =>
-                    (a.sortIndex ?? 0) -
-                    (b.sortIndex ?? 0)
-                )
-                .forEach(function(col) {
-
-                    // U sloupců Šablona/Karta máme
-                    // calculateDisplayValue jako string:
-                    // tempname / sccode.
-                    //stara verze s chybnym sortem
-                    /*
-                    const selector =
-                        typeof col.calculateDisplayValue === "string"
-                            ? col.calculateDisplayValue
-                            : col.dataField;
-                    */
-
-                    // nova verze s explicitnim sortem
-                    let selector = col.dataField;
-                    // Sloupce zobrazované přes jiné pole musí používat
-                    // stejný selector jako remote sorting gridu.
-                    if (col.dataField === "tempid") {
-                        selector = "tempname";
-                    }
-                    if (col.dataField === "scid") {
-                        selector = "sccode";
-                    }
-
-
-
-
-                    if (selector) {
-                        currentSort.push({
-                            selector: selector,
-                            desc: col.sortOrder === "desc"
-                        });
-                    }
-                });
-
-            // -------------------------------------------------
-            // 5. Parametry pro zaměřovací dotaz
-            // -------------------------------------------------
-            const locateParams = {
-                grid: "labels",
-                locateId: newId
-            };
-
-            if (currentFilter) {
-                locateParams.filter =
-                    JSON.stringify(currentFilter);
-            }
-
-            if (currentSort.length > 0) {
-                locateParams.sort =
-                    JSON.stringify(currentSort);
-            }
-
-            console.log(
-                "LOCATE label:",
-                newId,
-                locateParams
-            );
-
-            // -------------------------------------------------
-            // 6. Server zjistí skutečnou pozici nového labelu
-            // -------------------------------------------------
-            $.getJSON(
-                APIURL + "datagrid.php",
-                locateParams
-            )
-
-            .done(function(location) {
-
-                console.log(
-                    "LOCATE result:",
-                    location
-                );
-
-                // Pokud nový label není v aktuálně
-                // filtrovaném datasetu, není kam přecházet.
-                if (location.rowIndex === null) {
-
-                    console.warn(
-                        "Nový label není v aktuálně filtrovaném datasetu."
-                    );
-
-                    AppState.setLabel(
-                        newId,
-                        templateId,
-                        e.data.scid
-                    );
-
-                    const gridFields =
-                        $("#gridFields")
-                            .dxDataGrid("instance");
-
-                    if (gridFields) {
-                        gridFields.refresh();
-                    }
-
-                    DevExpress.ui.notify(
-                        "Štítek a pole připravena, ale štítek neodpovídá aktuálnímu filtru.",
-                        "warning",
-                        3000
-                    );
-
-                    return;
-                }
-
-                // -------------------------------------------------
-                // 7. Z rowIndex spočítáme stránku
-                // -------------------------------------------------
-                const pageSize =
-                    labelsGrid.pageSize();
-
-                const targetPage =
-                    Math.floor(
-                        location.rowIndex / pageSize
-                    );
-
-                console.log(
-                    "Label:",
-                    newId,
-                    "rowIndex:",
-                    location.rowIndex,
-                    "pageIndex:",
-                    targetPage
-                );
-
-                // -------------------------------------------------
-                // 8. Přepneme grid na správnou stránku
-                // -------------------------------------------------
-                labelsGrid.pageIndex(targetPage);
-
-                // Načteme stránku z DB.
-                labelsGrid.refresh()
-
-                    .done(function() {
-
-                        // -------------------------------------------------
-                        // 9. Nový label je nyní na aktuální stránce
-                        // -------------------------------------------------
-                        labelsGrid.selectRows(
-                            [newId],
-                            false
-                        );
-
-                        // -------------------------------------------------
-                        // 10. Nastavíme AppState a obnovíme Fields
-                        // -------------------------------------------------
-                        AppState.setLabel(
-                            newId,
-                            templateId,
-                            e.data.scid
-                        );
-
-                        const gridFields =
-                            $("#gridFields")
-                                .dxDataGrid("instance");
-
-                        if (gridFields) {
-                            gridFields.refresh();
-                        }
-
-                        DevExpress.ui.notify(
-                            "Štítek a pole připravena.",
-                            "success",
-                            2000
-                        );
-                    })
-
-                    .fail(function(error) {
-
-                        console.error(
-                            "Refresh gridu po LOCATE selhal:",
-                            error
-                        );
-                    });
-            })
-
-            .fail(function(xhr) {
-
-                console.error(
-                    "LOCATE label selhal:",
-                    xhr.responseText
-                );
-            });
-
-        }).fail(function(xhr) {
-
-            console.error(
-                "Selhalo uložení polí:",
-                xhr.responseText
-            );
-        });
-
-    } else {
-
-        console.warn(
-            "Šablona nemá žádná metadata k vygenerování polí.",
-            template
-        );
-    }
-},            
+            },            
 
             onRowUpdated: function(e) {
                 console.log("Master: Řádek aktualizován, osvěžuji AppState a Preview");
@@ -3291,76 +2855,7 @@ onRowInserted: function(e) {
         });
 
         // --- 3. Detail Grid: FIELDS ---
-        // stara verze - spatne synchro
-        /*
-        $("#gridFields").dxDataGrid({
-            dataSource: new DevExpress.data.DataSource({
-                store: new DevExpress.data.CustomStore({
-                    key: "id",
-                    load: function() {
-                        if (!AppState.selectedLabel.id) return [];
-                        return $.getJSON(APIURL+"datagrid.php", {
-                            grid: "fields",
-                            filter: JSON.stringify(["labelid", "=", AppState.selectedLabel.id])
-                        }).then(res => res.data);
-                    },
-                    update: function(key, values) {
-                        const data = { id: key, ...values };
-                        return $.ajax({
-                            url: APIURL+"fields-record.php",
-                            method: "POST",
-                            contentType: "application/json",
-                            data: JSON.stringify({ grid: "fields", operation: "update", data: [data] })
-                        });
-                    }
-                })
-            }),
-            editing: { 
-                mode: "cell", 
-                allowUpdating: ()=>canSave
-            },
-            columns: [
-                { dataField: "name", caption: "Pole", allowEditing: false },
-                { dataField: "content", caption: "Obsah" }
-            ],
-            onEditingStart: function(e) {
-                //nejprve prava
-                if (canSave===false) {
-                    e.cancel = true;
-                    return;
-                }
-                // Kontrola, zda máme metadata
-                if (AppState.currentTemplateMeta && Array.isArray(AppState.currentTemplateMeta)) {
-                    
-                    // Hledáme v metadatech podle PlaceHolderu
-                    const meta = AppState.currentTemplateMeta.find(m => m.PlaceHolder === e.data.name);
-                    
-                    // Pokud meta existuje a Editable je false, zrušíme editaci
-                    if (meta && meta.Editable === false) {
-                        e.cancel = true;
-                        DevExpress.ui.notify("Toto pole je v šabloně uzamčeno.", "info", 1000);
-                    }
-                }
-    
-            },
-            onRowUpdated: function(e) {
-                // Po uložení buňky do DB aktualizujeme náhled
-                const allData = e.component.getDataSource().items();
-                AppState.refreshPreview(allData);
-                // Aktualizujeme AppState novými daty (např. novou scid nebo tempid)
-             
-            },
-            onContentReady: function(e) {
-                // Při prvním načtení dat do gridu pošleme data do náhledu
-                const allData = e.component.getDataSource().items();
-                if (allData.length > 0) AppState.refreshPreview(allData);
-                //console.log("gridFields data:",allData);
-            }            
-        });
-        */
-
         // nova verze - vylepsene synchro/asynchro
-        // --- 3. Detail Grid: FIELDS ---
         $("#gridFields").dxDataGrid({
 
             dataSource: new DevExpress.data.DataSource({
@@ -3532,45 +3027,6 @@ onRowInserted: function(e) {
 
 
         // Registrace refreshu Detailu
-        // stara verze - nerespektuje aktualni/dobihajici request
-        /*
-        AppState.on('labelChanged', function(labelId) {
-            const grid = $("#gridFields").dxDataGrid("instance");
-            if (grid) grid.refresh();
-
-                if (!labelId || !AppState.currentTemplateFull) {
-                    $("#previewPicture").html('<div class="p-4 text-muted">Žádný výběr</div>');
-                    $("#previewTemplate").html('<div class="p-4 text-muted">Žádný výběr</div>');
-                    return;
-                }
-
-                const meta = AppState.currentTemplateFull.metajson;
-
-                // 1. Zobrazení obrázku
-                if (meta && meta.Picture) {
-                    $("#previewPicture").html(`<img src="${PATH_PICS}${meta.Picture}" class="img-fluid " style="max-height:100%">`);
-                } else {
-                    $("#previewPicture").html('<div class="p-4 text-warning">Obrázek nenalezen</div>');
-                }
-
-                // 2. Načtení HTML šablony a její naplnění daty
-                if (meta && meta.Template) {
-                    $.get(PATH_TEMPS + meta.Template, function(html) {
-                        $("#previewTemplate").html(html);
-                        
-                        // Po načtení šablony ji hned naplníme aktuálními daty z gridu
-                        const fieldsGrid = $("#gridFields").dxDataGrid("instance");
-                        if (fieldsGrid) {
-                            const data = fieldsGrid.getDataSource().items();
-                            updateHtmlTemplate(data);
-                        }
-                    }).fail(() => {
-                        $("#previewTemplate").html('<div class="p-4 text-danger">HTML šablona chybí</div>');
-                    });
-                }            
-        });
-        */
-
         // nova verze - resi dobihajici/novy dotaz
         AppState.on('labelChanged', function(labelId) {
 
@@ -3720,45 +3176,6 @@ onRowInserted: function(e) {
         /**
          * Hlavní funkce pro aktualizaci náhledu přes PHP Resolver
          */
-        // stara veze - callback bez kontroly!
-        /*
-        function updateLivePreview() {
-            const fieldsGrid = $("#gridFields").dxDataGrid("instance");
-            console.log("updatelivepreview");
-            // BEZPEČNOSTNÍ POJISTKA: Pokud nemáme vybraný label nebo grid ještě není ready
-            if (!fieldsGrid || !AppState.selectedLabel || !AppState.selectedLabel.id) {
-                console.log("updateLivePreview: Přerušeno - chybí aktivní label.");
-                return;
-            }
-
-            const payload = {
-                label_id: AppState.selectedLabel.id,
-                // Použijeme bezpečný přístup přes || {}
-                bus_transaction: AppState.selectedBusTransaction || { id: null, code: null },
-                storecard_id:  AppState.selectedLabel.storecard_id || null,
-                fields: fieldsGrid.getDataSource().items() || []
-            };
-
-            console.log("Odesílám k resolvování:", payload);
-
-            $.ajax({
-                url: APIURL + "resolve-preview.php",
-                method: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(payload),
-                success: function(resolvedData) {
-                    if (!resolvedData) return;
-                    
-                    for (const [id, value] of Object.entries(resolvedData)) {
-                        $("#previewTemplate").find(`#${id}`).text(value);
-                    }
-                },
-                error: function(xhr) {
-                    console.error("Resolver error:", xhr.responseText);
-                }
-            });
-        }
-        */
         // nova verze - vylepsena kontrola requestu
         function updateLivePreview() {
 
