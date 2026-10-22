@@ -2871,6 +2871,8 @@ onRowInserted: function(e) {
         });
 
         // --- 3. Detail Grid: FIELDS ---
+        // stara verze - spatne synchro
+        /*
         $("#gridFields").dxDataGrid({
             dataSource: new DevExpress.data.DataSource({
                 store: new DevExpress.data.CustomStore({
@@ -2935,6 +2937,179 @@ onRowInserted: function(e) {
                 //console.log("gridFields data:",allData);
             }            
         });
+        */
+
+        // nova verze - vylepsene synchro/asynchro
+        // --- 3. Detail Grid: FIELDS ---
+        $("#gridFields").dxDataGrid({
+
+            dataSource: new DevExpress.data.DataSource({
+
+                store: new DevExpress.data.CustomStore({
+
+                    key: "id",
+
+                    load: function() {
+
+                        // ID labelu si zachytíme HNED při startu tohoto loadu.
+                        const requestedLabelId =
+                            AppState.selectedLabel.id;
+
+                        if (!requestedLabelId) {
+                            return [];
+                        }
+
+                        console.log(
+                            "FIELDS load start:",
+                            requestedLabelId
+                        );
+
+                        return $.getJSON(
+                            APIURL + "datagrid.php",
+                            {
+                                grid: "fields",
+                                filter: JSON.stringify([
+                                    "labelid",
+                                    "=",
+                                    requestedLabelId
+                                ])
+                            }
+                        ).then(function(res) {
+
+                            // -------------------------------------------------
+                            // Mezitím mohl uživatel vybrat jiný label.
+                            // Starou odpověď NESMÍME pustit do gridu.
+                            // -------------------------------------------------
+                            if (
+                                AppState.selectedLabel.id !=
+                                requestedLabelId
+                            ) {
+
+                                console.log(
+                                    "FIELDS response ignored:",
+                                    requestedLabelId,
+                                    "aktuální label:",
+                                    AppState.selectedLabel.id
+                                );
+
+                                // Nevracíme stará data.
+                                return [];
+                            }
+
+                            console.log(
+                                "FIELDS load accepted:",
+                                requestedLabelId,
+                                res.data
+                            );
+
+                            return res.data || [];
+                        });
+                    },
+
+                    update: function(key, values) {
+
+                        const data = {
+                            id: key,
+                            ...values
+                        };
+
+                        return $.ajax({
+                            url: APIURL + "fields-record.php",
+                            method: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                grid: "fields",
+                                operation: "update",
+                                data: [data]
+                            })
+                        });
+                    }
+                })
+            }),
+
+            editing: {
+                mode: "cell",
+                allowUpdating: () => canSave
+            },
+
+            columns: [
+                {
+                    dataField: "name",
+                    caption: "Pole",
+                    allowEditing: false
+                },
+                {
+                    dataField: "content",
+                    caption: "Obsah"
+                }
+            ],
+
+            onEditingStart: function(e) {
+
+                // Nejprve práva.
+                if (canSave === false) {
+                    e.cancel = true;
+                    return;
+                }
+
+                // Kontrola, zda máme metadata.
+                if (
+                    AppState.currentTemplateMeta &&
+                    Array.isArray(
+                        AppState.currentTemplateMeta
+                    )
+                ) {
+
+                    const meta =
+                        AppState.currentTemplateMeta.find(
+                            m =>
+                                m.PlaceHolder ===
+                                e.data.name
+                        );
+
+                    if (
+                        meta &&
+                        meta.Editable === false
+                    ) {
+
+                        e.cancel = true;
+
+                        DevExpress.ui.notify(
+                            "Toto pole je v šabloně uzamčeno.",
+                            "info",
+                            1000
+                        );
+                    }
+                }
+            },
+
+            onRowUpdated: function(e) {
+
+                const allData =
+                    e.component
+                        .getDataSource()
+                        .items();
+
+                AppState.refreshPreview(allData);
+            },
+
+            onContentReady: function(e) {
+
+                const allData =
+                    e.component
+                        .getDataSource()
+                        .items();
+
+                // Preview aktualizujeme i prázdným polem.
+                // Jinak by při přechodu na label bez Fields
+                // mohly zůstat hodnoty předchozího labelu.
+                AppState.refreshPreview(
+                    allData || []
+                );
+            }
+        });        
+
+
 
         // Registrace refreshu Detailu
         AppState.on('labelChanged', function(labelId) {
