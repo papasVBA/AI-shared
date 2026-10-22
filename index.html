@@ -3112,6 +3112,8 @@ onRowInserted: function(e) {
 
 
         // Registrace refreshu Detailu
+        // stara verze - nerespektuje aktualni/dobihajici request
+        /*
         AppState.on('labelChanged', function(labelId) {
             const grid = $("#gridFields").dxDataGrid("instance");
             if (grid) grid.refresh();
@@ -3147,6 +3149,129 @@ onRowInserted: function(e) {
                     });
                 }            
         });
+        */
+
+        // nova verze - resi dobihajici/novy dotaz
+        AppState.on('labelChanged', function(labelId) {
+
+            const grid =
+                $("#gridFields").dxDataGrid("instance");
+
+            if (grid) {
+                grid.refresh();
+            }
+
+            if (
+                !labelId ||
+                !AppState.currentTemplateFull
+            ) {
+                $("#previewPicture").html(
+                    '<div class="p-4 text-muted">Žádný výběr</div>'
+                );
+
+                $("#previewTemplate").html(
+                    '<div class="p-4 text-muted">Žádný výběr</div>'
+                );
+
+                return;
+            }
+
+            // -------------------------------------------------
+            // Zapamatujeme si label, pro který preview vytváříme.
+            // -------------------------------------------------
+            const requestedLabelId = labelId;
+
+            const meta =
+                AppState.currentTemplateFull.metajson;
+
+            // -------------------------------------------------
+            // 1. Obrázek
+            // -------------------------------------------------
+            if (meta && meta.Picture) {
+
+                $("#previewPicture").html(
+                    `<img src="${PATH_PICS}${meta.Picture}"
+                        class="img-fluid"
+                        style="max-height:100%">`
+                );
+
+            } else {
+
+                $("#previewPicture").html(
+                    '<div class="p-4 text-warning">Obrázek nenalezen</div>'
+                );
+            }
+
+            // -------------------------------------------------
+            // 2. HTML šablona
+            // -------------------------------------------------
+            if (meta && meta.Template) {
+
+                $.get(
+                    PATH_TEMPS + meta.Template
+                )
+
+                .done(function(html) {
+
+                    // Mezitím mohl být vybrán jiný label.
+                    if (
+                        AppState.selectedLabel.id !=
+                        requestedLabelId
+                    ) {
+                        console.log(
+                            "HTML preview ignored:",
+                            requestedLabelId,
+                            "aktuální label:",
+                            AppState.selectedLabel.id
+                        );
+
+                        return;
+                    }
+
+                    $("#previewTemplate").html(html);
+
+                    // Naplníme právě načtenou šablonu
+                    // aktuálními Fields.
+                    const fieldsGrid =
+                        $("#gridFields")
+                            .dxDataGrid("instance");
+
+                    if (fieldsGrid) {
+
+                        const data =
+                            fieldsGrid
+                                .getDataSource()
+                                .items();
+
+                        updateHtmlTemplate(
+                            data || []
+                        );
+                    }
+
+                    console.log(
+                        "HTML preview accepted:",
+                        requestedLabelId,
+                        meta.Template
+                    );
+                })
+
+                .fail(function() {
+
+                    // Ani chyba starého requestu nesmí
+                    // přepsat preview nového labelu.
+                    if (
+                        AppState.selectedLabel.id !=
+                        requestedLabelId
+                    ) {
+                        return;
+                    }
+
+                    $("#previewTemplate").html(
+                        '<div class="p-4 text-danger">HTML šablona chybí</div>'
+                    );
+                });
+            }
+        });        
 
         // --- LISTENER PRO ŽIVOU AKTUALIZACI (Změna textu v gridu) ---
         AppState.on('previewNeedRefresh', function(data) {
@@ -3175,6 +3300,8 @@ onRowInserted: function(e) {
         /**
          * Hlavní funkce pro aktualizaci náhledu přes PHP Resolver
          */
+        // stara veze - callback bez kontroly!
+        /*
         function updateLivePreview() {
             const fieldsGrid = $("#gridFields").dxDataGrid("instance");
             console.log("updatelivepreview");
@@ -3211,6 +3338,123 @@ onRowInserted: function(e) {
                 }
             });
         }
+        */
+        // nova verze - vylepsena kontrola requestu
+        function updateLivePreview() {
+
+            const fieldsGrid =
+                $("#gridFields")
+                    .dxDataGrid("instance");
+
+            console.log("updatelivepreview");
+
+            if (
+                !fieldsGrid ||
+                !AppState.selectedLabel ||
+                !AppState.selectedLabel.id
+            ) {
+                console.log(
+                    "updateLivePreview: Přerušeno - chybí aktivní label."
+                );
+
+                return;
+            }
+
+            // -------------------------------------------------
+            // Label, pro který tento resolver spouštíme.
+            // -------------------------------------------------
+            const requestedLabelId =
+                AppState.selectedLabel.id;
+
+            const payload = {
+                label_id: requestedLabelId,
+
+                bus_transaction:
+                    AppState.selectedBusTransaction ||
+                    {
+                        id: null,
+                        code: null
+                    },
+
+                storecard_id:
+                    AppState.selectedLabel.storecard_id ||
+                    null,
+
+                fields:
+                    fieldsGrid
+                        .getDataSource()
+                        .items() || []
+            };
+
+            console.log(
+                "Odesílám k resolvování:",
+                payload
+            );
+
+            $.ajax({
+                url: APIURL + "resolve-preview.php",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+
+                success: function(resolvedData) {
+
+                    // -------------------------------------------------
+                    // Odpověď patří už neaktivnímu labelu.
+                    // Zahodíme ji.
+                    // -------------------------------------------------
+                    if (
+                        AppState.selectedLabel.id !=
+                        requestedLabelId
+                    ) {
+                        console.log(
+                            "RESOLVER response ignored:",
+                            requestedLabelId,
+                            "aktuální label:",
+                            AppState.selectedLabel.id
+                        );
+
+                        return;
+                    }
+
+                    if (!resolvedData) {
+                        return;
+                    }
+
+                    console.log(
+                        "RESOLVER response accepted:",
+                        requestedLabelId
+                    );
+
+                    for (
+                        const [id, value]
+                        of Object.entries(resolvedData)
+                    ) {
+                        $("#previewTemplate")
+                            .find(`#${id}`)
+                            .text(value);
+                    }
+                },
+
+                error: function(xhr) {
+
+                    // Starý request už nás nezajímá.
+                    if (
+                        AppState.selectedLabel.id !=
+                        requestedLabelId
+                    ) {
+                        return;
+                    }
+
+                    console.error(
+                        "Resolver error:",
+                        xhr.responseText
+                    );
+                }
+            });
+        }
+
+
 
         /**
          * Pomocná funkce pro zobrazení tlačítka smazat
