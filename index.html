@@ -359,6 +359,8 @@
             busTransactionChanged: [] // DOPLNĚNO
         },
         //pro tab2
+        //stara verze - chybne vycitani z cache
+        /*
         setTemplateForEdit(id) {
             this.selectedTemplateId = id;
             // Najdeme šablonu v cache a vytáhneme její meta_json pro Meta Grid
@@ -373,7 +375,130 @@
             
             console.log("AppState: Šablona k editaci nastavena:", id);
         },
+        */
 
+        // nova verze - vylepsena prace z dotazem bez cache
+        setTemplateForEdit(id) {
+
+            // -------------------------------------------------
+            // 1. Zapamatujeme aktuálně vybranou šablonu
+            // -------------------------------------------------
+            this.selectedTemplateId =
+                id || null;
+
+            const requestedTemplateId =
+                this.selectedTemplateId;
+
+            const metaGrid =
+                $("#gridTemplateMeta")
+                    .dxDataGrid("instance");
+
+            // -------------------------------------------------
+            // 2. Není nic vybráno
+            // -------------------------------------------------
+            if (!requestedTemplateId) {
+
+                if (metaGrid) {
+                    metaGrid.option(
+                        "dataSource",
+                        []
+                    );
+                }
+
+                console.log(
+                    "AppState: Žádná šablona k editaci."
+                );
+
+                return;
+            }
+
+            // -------------------------------------------------
+            // 3. Šablonu získáme spolehlivě podle ID.
+            //    Nezávisíme na aktuální stránce gridTemplates.
+            // -------------------------------------------------
+            loadTemplateById(
+                requestedTemplateId
+            )
+
+            .done(template => {
+
+                // -------------------------------------------------
+                // 4. Mezitím mohl uživatel kliknout jinam.
+                //    Starou odpověď zahodíme.
+                // -------------------------------------------------
+                if (
+                    this.selectedTemplateId !=
+                    requestedTemplateId
+                ) {
+
+                    console.log(
+                        "TEMPLATE META ignored:",
+                        requestedTemplateId,
+                        "aktuální:",
+                        this.selectedTemplateId
+                    );
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // 5. Vytáhneme Fields z META_JSON
+                // -------------------------------------------------
+                const metaData =
+                    (
+                        template &&
+                        template.metajson &&
+                        Array.isArray(
+                            template.metajson.Fields
+                        )
+                    )
+                        ? template.metajson.Fields
+                        : [];
+
+                // -------------------------------------------------
+                // 6. Naplníme gridTemplateMeta
+                // -------------------------------------------------
+                if (metaGrid) {
+
+                    metaGrid.option(
+                        "dataSource",
+                        metaData
+                    );
+                }
+
+                console.log(
+                    "TEMPLATE META accepted:",
+                    requestedTemplateId,
+                    "počet polí:",
+                    metaData.length
+                );
+            })
+
+            .fail(error => {
+
+                // Pokud už je vybrána jiná šablona,
+                // starý neúspěšný request nás nezajímá.
+                if (
+                    this.selectedTemplateId !=
+                    requestedTemplateId
+                ) {
+                    return;
+                }
+
+                console.error(
+                    "Nepodařilo se načíst metadata šablony:",
+                    requestedTemplateId,
+                    error
+                );
+
+                if (metaGrid) {
+                    metaGrid.option(
+                        "dataSource",
+                        []
+                    );
+                }
+            });
+        },        
 
         setBusTransaction(id, code) {
             //this.selectedBusTransaction = { id, code };
