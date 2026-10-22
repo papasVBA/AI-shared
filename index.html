@@ -1457,7 +1457,8 @@ $("#gridTemplates").dxDataGrid({
     // ------------------------------------------------------
     // INSERT nové šablony
     // ------------------------------------------------------
-
+    // stara verze
+    /*
     onRowInserted: function(e) {
 
         const templateId =
@@ -1484,6 +1485,237 @@ $("#gridTemplates").dxDataGrid({
             picture,
             htmlTemplate
         );
+    },
+    */
+
+    // nova verze onRowInserted - vylepsene rizeni 
+    onRowInserted: function(e) {
+
+        // -------------------------------------------------
+        // 1. ID nové šablony
+        // -------------------------------------------------
+        const newId =
+            Array.isArray(e.key)
+                ? e.key[0]
+                : (e.key || e.data.id);
+
+        const templatesGrid =
+            e.component;
+
+        if (!newId) {
+
+            console.error(
+                "Nová šablona nemá ID."
+            );
+
+            return;
+        }
+
+        const picture =
+            e.data.Picture ||
+            "DUMMY.png";
+
+        const htmlTemplate =
+            e.data.Template ||
+            "DUMMY.html";
+
+        console.log(
+            "Zpracovávám novou šablonu ID:",
+            newId
+        );
+
+        // -------------------------------------------------
+        // 2. Nejprve dokončíme META_JSON
+        // -------------------------------------------------
+        saveNewTemplateMeta(
+            newId,
+            picture,
+            htmlTemplate
+        )
+
+        .done(function() {
+
+            // -------------------------------------------------
+            // 3. Aktuální filtr gridu
+            // -------------------------------------------------
+            const currentFilter =
+                templatesGrid.getCombinedFilter(true);
+
+            // -------------------------------------------------
+            // 4. Aktuální remote sort
+            // -------------------------------------------------
+            const currentSort = [];
+
+            templatesGrid
+                .getVisibleColumns()
+                .filter(col => col.sortOrder)
+                .sort((a, b) =>
+                    (a.sortIndex ?? 0) -
+                    (b.sortIndex ?? 0)
+                )
+                .forEach(function(col) {
+
+                    let selector =
+                        col.dataField;
+
+                    // Lookup/display sloupce musí použít
+                    // STEJNÝ selector jako běžný remote sort.
+                    if (col.dataField === "printerid") {
+                        selector = "printername";
+                    }
+
+                    if (col.dataField === "scid") {
+                        selector = "sccode";
+                    }
+
+                    if (col.dataField === "btid") {
+                        selector = "btcode";
+                    }
+
+                    if (selector) {
+                        currentSort.push({
+                            selector: selector,
+                            desc:
+                                col.sortOrder === "desc"
+                        });
+                    }
+                });
+
+            // -------------------------------------------------
+            // 5. LOCATE parametry
+            // -------------------------------------------------
+            const locateParams = {
+                grid: "templates",
+                locateId: newId
+            };
+
+            if (currentFilter) {
+                locateParams.filter =
+                    JSON.stringify(
+                        currentFilter
+                    );
+            }
+
+            if (currentSort.length > 0) {
+                locateParams.sort =
+                    JSON.stringify(
+                        currentSort
+                    );
+            }
+
+            console.log(
+                "LOCATE template:",
+                newId,
+                locateParams
+            );
+
+            // -------------------------------------------------
+            // 6. Server zjistí skutečnou pozici šablony
+            // -------------------------------------------------
+            $.getJSON(
+                APIURL + "datagrid.php",
+                locateParams
+            )
+
+            .done(function(location) {
+
+                console.log(
+                    "LOCATE template result:",
+                    location
+                );
+
+                // -------------------------------------------------
+                // 7. Nová šablona neodpovídá aktivnímu filtru
+                // -------------------------------------------------
+                if (location.rowIndex === null) {
+
+                    console.warn(
+                        "Nová šablona není v aktuálně filtrovaném datasetu."
+                    );
+
+                    AppState.setTemplateForEdit(
+                        newId
+                    );
+
+                    DevExpress.ui.notify(
+                        "Šablona vytvořena, ale neodpovídá aktuálnímu filtru.",
+                        "warning",
+                        3000
+                    );
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // 8. Absolutní rowIndex -> stránka
+                // -------------------------------------------------
+                const pageSize =
+                    templatesGrid.pageSize();
+
+                const targetPage =
+                    Math.floor(
+                        location.rowIndex /
+                        pageSize
+                    );
+
+                console.log(
+                    "Template:",
+                    newId,
+                    "rowIndex:",
+                    location.rowIndex,
+                    "pageIndex:",
+                    targetPage
+                );
+
+                // -------------------------------------------------
+                // 9. Přepnutí na správnou stránku
+                // -------------------------------------------------
+                templatesGrid.pageIndex(
+                    targetPage
+                );
+
+                templatesGrid.refresh()
+
+                    .done(function() {
+
+                        // -----------------------------------------
+                        // 10. Označení nové šablony
+                        // -----------------------------------------
+                        templatesGrid.selectRows(
+                            [newId],
+                            false
+                        );
+
+                        // onSelectionChanged by to udělal také,
+                        // ale explicitně držíme AppState správně.
+                        AppState.setTemplateForEdit(
+                            newId
+                        );
+
+                        DevExpress.ui.notify(
+                            "Šablona vytvořena a vybrána.",
+                            "success",
+                            2000
+                        );
+                    })
+
+                    .fail(function(error) {
+
+                        console.error(
+                            "Refresh Templates po LOCATE selhal:",
+                            error
+                        );
+                    });
+            })
+
+            .fail(function(xhr) {
+
+                console.error(
+                    "LOCATE template selhal:",
+                    xhr.responseText
+                );
+            });
+        });
     },
 
     selection: {
@@ -1980,6 +2212,8 @@ $("#gridTemplates").dxDataGrid({
     }    
 
     // fce pro ulozeni "NEW"
+    // stara verze - nerizeny retezec requestu
+    /*
     function saveNewTemplateMeta(
         templateId,
         picture,
@@ -2037,6 +2271,67 @@ $("#gridTemplates").dxDataGrid({
             );
         });
     }
+    */
+
+    // nova verze function saveNewTemplateMeta - vylepsene rizeni retezce requestu
+    function saveNewTemplateMeta(
+        templateId,
+        picture,
+        htmlTemplate
+    ) {
+
+        const metaJson = {
+            Fields: [],
+            Picture: picture || "DUMMY.png",
+            Template: htmlTemplate || "DUMMY.html"
+        };
+
+        console.log(
+            "Inicializuji META_JSON nové šablony:",
+            metaJson
+        );
+
+        // DŮLEŽITÉ:
+        // AJAX vracíme volajícímu.
+        // Refresh gridu už zde NEDĚLÁME.
+        return $.ajax({
+            url: APIURL + "templates-record.php",
+            method: "POST",
+            contentType: "application/json",
+
+            data: JSON.stringify({
+                grid: "templates",
+                operation: "update",
+
+                data: [{
+                    id: templateId,
+                    meta_json: metaJson
+                }]
+            })
+        })
+
+        .done(function() {
+
+            console.log(
+                "META_JSON nové šablony vytvořen."
+            );
+        })
+
+        .fail(function(xhr) {
+
+            console.error(
+                "Inicializace META_JSON selhala:",
+                xhr
+            );
+
+            DevExpress.ui.notify(
+                "Nepodařilo se vytvořit META_JSON šablony.",
+                "error",
+                3000
+            );
+        });
+    }
+
 
 
 
