@@ -171,12 +171,18 @@ if ($grid === 'labels') {
     $orderBy .= ', sll.id ASC';
 }
 
+if ($grid === 'templates') {
+    $orderBy .= ', slt.id ASC';
+}
 
 // ---------------------------------------------------------
 // LOCATE LABEL
 // Zjistí skutečnou pozici labelu v aktuálně
 // filtrovaném a seřazeném datasetu.
 // ---------------------------------------------------------
+
+// stara verze bez templates
+/*
 if ($locateId !== null && $grid === 'labels') {
 
     // Povolené názvy výstupních sloupců SELECTu.
@@ -276,9 +282,162 @@ if ($locateId !== null && $grid === 'labels') {
 
     exit;
 }
+*/
 
+// nova verze LOCATE bloku s doplnenymi templates
+// ---------------------------------------------------------
+// LOCATE ROW
+// Zjistí skutečnou pozici řádku v aktuálně
+// filtrovaném a seřazeném datasetu.
+// ---------------------------------------------------------
+if (
+    $locateId !== null &&
+    in_array($grid, ['labels', 'templates'], true)
+) {
 
+    // -----------------------------------------------------
+    // Povolené výstupní sloupce jednotlivých gridů.
+    // Nikdy nepoužíváme selector z browseru přímo v SQL.
+    // -----------------------------------------------------
+    if ($grid === 'labels') {
 
+        $locateSortMapping = [
+            'id'       => 'id',
+            'name'     => 'name',
+            'tempname' => 'tempname',
+            'tempid'   => 'tempid',
+            'qpp'      => 'qpp',
+            'scid'     => 'scid',
+            'sccode'   => 'sccode',
+            'scname'   => 'scname',
+            'notice'   => 'notice'
+        ];
+
+        $defaultLocateSort = 'name ASC';
+
+    } else {
+
+        // templates
+        $locateSortMapping = [
+            'id'          => 'id',
+            'name'        => 'name',
+            'btwfilename' => 'btwfilename',
+            'printerid'   => 'printerid',
+            'printername' => 'printername',
+            'scid'        => 'scid',
+            'sccode'      => 'sccode',
+            'scname'      => 'scname',
+            'btid'        => 'btid',
+            'btcode'      => 'btcode',
+            'btname'      => 'btname',
+            'notice'      => 'notice'
+        ];
+
+        $defaultLocateSort = 'name ASC';
+    }
+
+    $locateSortParts = [];
+
+    // -----------------------------------------------------
+    // Uživatelský remote sort
+    // -----------------------------------------------------
+    if ($dxSort) {
+
+        $sortArray = json_decode(
+            $dxSort,
+            true
+        );
+
+        if (
+            json_last_error() === JSON_ERROR_NONE &&
+            is_array($sortArray)
+        ) {
+
+            foreach ($sortArray as $sortItem) {
+
+                $selector =
+                    $sortItem['selector'] ?? null;
+
+                if (
+                    $selector !== null &&
+                    isset(
+                        $locateSortMapping[$selector]
+                    )
+                ) {
+
+                    $direction =
+                        !empty($sortItem['desc'])
+                            ? 'DESC'
+                            : 'ASC';
+
+                    $locateSortParts[] =
+                        $locateSortMapping[$selector] .
+                        ' ' .
+                        $direction;
+                }
+            }
+        }
+    }
+
+    // -----------------------------------------------------
+    // Výchozí sort
+    // -----------------------------------------------------
+    if (empty($locateSortParts)) {
+        $locateSortParts[] =
+            $defaultLocateSort;
+    }
+
+    // -----------------------------------------------------
+    // Stabilní pořadí při shodných hodnotách.
+    // -----------------------------------------------------
+    $locateSortParts[] = 'id ASC';
+
+    $locateOrderBy =
+        implode(', ', $locateSortParts);
+
+    // -----------------------------------------------------
+    // Zjištění absolutní pozice řádku
+    // -----------------------------------------------------
+    $locateSql = "
+        SELECT row_index
+        FROM (
+            SELECT
+                id,
+                ROW_NUMBER() OVER (
+                    ORDER BY $locateOrderBy
+                ) - 1 AS row_index
+            FROM ($sql) AS locate_source
+        ) AS located
+        WHERE id = :locateId
+    ";
+
+    $locateParams = $params;
+    $locateParams['locateId'] =
+        $locateId;
+
+    $locateRes =
+        $pg->query(
+            $locateSql,
+            $locateParams
+        );
+
+    echo json_encode([
+        'rowIndex' =>
+            isset($locateRes[0]['row_index'])
+                ? (int)$locateRes[0]['row_index']
+                : null,
+
+        // Zatím necháme diagnostiku.
+        'locateOrderBy' =>
+            $locateOrderBy,
+
+        'dataOrderBy' =>
+            $orderBy
+
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
 
     // COUNT - Celkový počet pro pager
     $countSql = "SELECT COUNT(*) as cnt FROM ($sql) as sub";
