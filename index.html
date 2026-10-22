@@ -381,7 +381,8 @@
             console.log("AppState: Obchodní případ nastaven:", this.selectedBusTransaction);
             this.notify('busTransactionChanged', this.selectedBusTransaction);            
         },
-
+        // stara verze setlabel - semanticka chyba v nacitani z cache 
+        /*
         setLabel(id, templateId, storecard_id = null) {
             // Zajistíme, že ID labelu je prostá hodnota, ne pole ['18']
             const cleanId = Array.isArray(id) ? id[0] : id;
@@ -410,6 +411,88 @@
             console.log("AppState: Vybrán Label", cleanId, "Metadata polí:", this.currentTemplateMeta);
             this.notify('labelChanged', cleanId);
         },
+        */
+
+        //nova verze setlabel pro nacitani template by ID
+        setLabel(id, templateId, storecard_id = null) {
+
+            const cleanId =
+                Array.isArray(id) ? id[0] : id;
+
+            this.selectedLabel = {
+                id: cleanId || null,
+                templateId: templateId || null,
+                storecard_id: storecard_id || null
+            };
+
+            // Zapamatujeme si label, pro který šablonu načítáme.
+            // Chrání nás to i proti rychlému překliknutí.
+            const requestedLabelId = cleanId;
+
+            loadTemplateById(templateId)
+
+                .done(template => {
+
+                    // Mezitím mohl uživatel kliknout jinam.
+                    if (
+                        this.selectedLabel.id !=
+                        requestedLabelId
+                    ) {
+                        return;
+                    }
+
+                    this.currentTemplateFull =
+                        template || null;
+
+                    this.currentTemplateMeta =
+                        (
+                            template &&
+                            template.metajson &&
+                            template.metajson.Fields
+                        )
+                            ? template.metajson.Fields
+                            : [];
+
+                    console.log(
+                        "AppState: Vybrán Label",
+                        cleanId,
+                        "Template:",
+                        templateId,
+                        "Metadata polí:",
+                        this.currentTemplateMeta
+                    );
+
+                    this.notify(
+                        'labelChanged',
+                        cleanId
+                    );
+                })
+
+                .fail(error => {
+
+                    console.error(
+                        "Nepodařilo se načíst šablonu:",
+                        templateId,
+                        error
+                    );
+
+                    // Pouze pokud jsme stále na stejném labelu.
+                    if (
+                        this.selectedLabel.id ==
+                        requestedLabelId
+                    ) {
+                        this.currentTemplateFull = null;
+                        this.currentTemplateMeta = [];
+
+                        this.notify(
+                            'labelChanged',
+                            cleanId
+                        );
+                    }
+                });
+        },
+
+
         // Funkce pro aktualizaci náhledu bez reloadu celé šablony
         refreshPreview(fieldsData) {
             this.currentFields = fieldsData;
@@ -422,6 +505,79 @@
             this.listeners[event].forEach(c => c(data));
         }
     };
+
+
+    // ----------------------------------------------------------
+    // Načtení konkrétní šablony podle ID
+    // Nezávislé na aktuální stránce gridTemplates.
+    // ----------------------------------------------------------
+    function loadTemplateById(templateId) {
+
+        if (!templateId) {
+            return $.Deferred()
+                .resolve(null)
+                .promise();
+        }
+
+        // Pokud ji už máme v cache, použijeme ji.
+        const cached =
+            AppState.templatesCache.find(
+                t => t.id == templateId
+            );
+
+        if (cached) {
+            return $.Deferred()
+                .resolve(cached)
+                .promise();
+        }
+
+        // Jinak ji načteme přímo ze serveru.
+        return $.getJSON(
+            APIURL + "datagrid.php",
+            {
+                grid: "templates",
+                filter: JSON.stringify([
+                    "id",
+                    "=",
+                    String(templateId)
+                ])
+            }
+        ).then(function(res) {
+
+            if (!res.data || res.data.length === 0) {
+                return null;
+            }
+
+            const template = res.data[0];
+
+            // Stejné pomocné hodnoty jako při loadu gridu.
+            const meta = template.metajson || {};
+
+            template.Picture =
+                meta.Picture || "DUMMY.png";
+
+            template.Template =
+                meta.Template || "DUMMY.html";
+
+            // DŮLEŽITÉ:
+            // nepřepisujeme cache, pouze konkrétní
+            // šablonu do cache doplníme.
+            const existingIndex =
+                AppState.templatesCache.findIndex(
+                    t => t.id == template.id
+                );
+
+            if (existingIndex >= 0) {
+                AppState.templatesCache[existingIndex] =
+                    template;
+            } else {
+                AppState.templatesCache.push(template);
+            }
+
+            return template;
+        });
+    }
+
 
     // Pomocná funkce pro Lookupy (vrací Store, ne DataSource)
     function createStoreForLookup(gridName, extraParams = {}) {
